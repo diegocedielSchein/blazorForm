@@ -1,0 +1,103 @@
+﻿@page "/userlist"
+
+@using BlazorUserApp.Data;
+@inject UserDbContext context;
+@inject NavigationManager NavigationManager;
+
+<h3>UserList</h3>
+@if(users!=null){
+<table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha de nacimiento</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+                @foreach (var user in users)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.NameUser</td>
+                        <td>@user.LastNameUser</td>
+                        <td>@user.DateBirthUser.ToString("dd/MM/yyy")</td>
+                        <th><NavLink class="btn btn-success" href=@($"/EditUser/{user.Id}")>Editar</NavLink></th>
+                        <th><button class="btn btn-danger" @onclick="()=> ConfirmDeleteUser(user.Id)">Eliminar</button></th>
+                      
+                    </tr>
+                }
+
+        </tbody>
+    </table>
+    @if (ShowDeleteUser) {
+        <div class="modal" tabindex="-1" style="display:block">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Eliminar Usuario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CancelUser"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" @onclick="DeleteUser">Sí</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CancelUser">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+}
+
+
+else
+{
+    <h1>no hay usuarios!</h1>
+}
+
+
+
+
+@code {
+    private bool ShowDeleteUser;
+    private List<Users> users;
+    public int UserIdDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users =  context.Users.ToList();    
+    }
+
+
+    public void ConfirmDeleteUser(int UserId)
+    {
+        UserIdDelete = UserId;
+        ShowDeleteUser = true;
+    }
+
+
+    private async Task DeleteUser()
+    {
+        var UserDelete = context.Users.Find(UserIdDelete);
+        if (UserDelete != null)
+        {
+            context.Users.Remove(UserDelete);
+            await context.SaveChangesAsync();
+            users.Remove(UserDelete);
+        }
+        ShowDeleteUser = false;
+    }
+
+    public void CancelUser()
+    {
+        ShowDeleteUser = false;
+    }
+
+}

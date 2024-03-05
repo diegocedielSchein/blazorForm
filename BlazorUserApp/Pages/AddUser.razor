@@ -1,0 +1,72 @@
+﻿@page "/adduser"
+
+
+
+@using BlazorUserApp.Data;
+
+
+@inject NavigationManager NavigationManager;
+@inject UserDbContext context;
+
+<h3>AddUser</h3>
+<form @onsubmit="SaveUser" class="p-4">
+    <label>Name of user</label>
+    <input class="form-control" type="text" placeholder="Please add name..." id="NameUser" required @bind="newUser.NameUser"/>
+
+     <label>LastName of user</label>
+    <input class="form-control"  type="text" placeholder="Please add  last name..." id="LastNameUser" required @bind="newUser.LastNameUser" />
+
+     <label>Date of birth user</label>
+    <input class="form-control"  type="date"    placeholder="Please add date of birth..." id="DateBirthUser" required @bind="newUser.DateBirthUser" />
+
+    <button  type="submit" class="btn btn-primary m-4 rounded">Save User</button>
+
+</form>
+
+@if(showModal == true)
+{
+    <div class="modal" tabindex="-1" style="display:block">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registro enviado con exito.</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mt-4">Se guardo el Usuario: <strong>@newUser.NameUser @newUser.LastNameUser</strong></p><p>Su edad corresponde a : <strong>@CalculateAge(newUser.DateBirthUser)</strong> años.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+
+
+    private Users newUser = new Users()
+        {
+            DateBirthUser = DateTime.Now    
+    };
+    private bool showModal = false;
+
+    private async Task SaveUser()
+    {
+        context.Users.Add(newUser);
+        await context.SaveChangesAsync();
+        showModal = true;
+        // NavigationManager.NavigateTo("/userlist");
+    }
+
+    private void CloseModal() { showModal = false; }
+
+    private int CalculateAge(DateTime birthDate)
+    {
+        DateTime today = DateTime.Today;
+        int age = today.Year - birthDate.Year;
+        if (birthDate.Date > today.AddYears(-age))
+            age--;
+
+        return age;
+    }
+
+
+}

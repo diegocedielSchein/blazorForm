@@ -1,0 +1,48 @@
+﻿@page "/edituser/{UserId:int}"
+
+
+
+@using BlazorUserApp.Data;
+@using Microsoft.AspNetCore.Components.Routing;
+
+@inject NavigationManager NavigationManager;
+@inject UserDbContext context;
+   <h3>Edit User</h3>
+@if (user != null) {
+    <form @onsubmit="SaveUser" class="p-4">
+        <label>Name of user</label>
+        <input class="form-control mb-2" type="text" placeholder="Please add name..." id="NameUser" required @bind="user.NameUser" />
+
+        <label>LastName of user</label>
+        <input class="form-control mb-2" type="text" placeholder="Please add  last name..." id="LastNameUser" required @bind="user.LastNameUser" />
+
+        <label>Date of birth user</label>
+        <input class="form-control mb-2" type="date" placeholder="Please add date of birth..." id="DateBirthUser" required @bind="user.DateBirthUser" />
+
+        <button type="submit" class="btn btn-primary m-4 rounded">Update User</button>
+    </form>
+}
+
+
+@code {
+    [Parameter]
+
+    public int  UserId { get; set; }
+
+
+
+    public Users user;
+
+    protected override void OnInitialized()
+    {
+       user = context.Users.FirstOrDefault(u => u.Id == UserId);
+    }
+
+
+    private async Task SaveUser()
+    {
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/userlist");
+    }
+
+}
